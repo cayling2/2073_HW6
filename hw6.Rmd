@@ -1,0 +1,61 @@
+---
+title: "hw6"
+format: html
+editor: visual
+---
+
+## Question 1 Code
+
+```{r}
+library(dplyr)
+
+pan_go_term <- read.table("analysis2.txt", header = TRUE, sep = "\t")
+
+library(readxl)
+paper_go_terms <- read_excel("paper_go_terms.xlsx")
+
+names(pan_go_term)[names(pan_go_term) == "GO.biological.process"] <- "GO biological process"
+
+both_set_go <- inner_join(pan_go_term, paper_go_terms, by = "GO biological process")
+
+
+#create the p-value graph 
+# -log10(pyour_analysis) vs. -log10(pLai_et_al) 
+#y vs x
+
+plot(x = -log10(both_set_go$`P-value`), y = -log10(both_set_go$upload_1..raw.P.value.), xlab = "Lai_et_al -log10(P-value)", ylab = "My -log10(P-value)", main = "-log10(pyour_analysis) vs. -log10(pLai_et_al)")
+
+```
+
+## Question 3 Code
+
+```{r}
+
+library(readxl)
+sec_pap <- read_excel("41588_2020_741_MOESM3_ESM.xlsx", sheet = "Supplementary Table 3", skip = 2, col_names = TRUE)
+
+#make bed file
+# chrom, chromStart, and ChromEnd are the only required 
+#https://genome.ucsc.edu/FAQ/FAQformat.html#format1
+#make sure X is ChrX
+#parse through data
+#using code from HW5
+
+for (i in 1:length(sec_pap$Chr)) {
+  if (sec_pap$Chr[i] == 23){
+    sec_pap$Chr[i] = "X"
+}}
+
+bedfile <- data.frame(
+  chrom=paste0("chr", sec_pap$Chr),
+  chromStart=sec_pap$`Pos (hg19)`,
+  chromEnd=sec_pap$`Pos (hg19)`
+)
+
+write.table(x=bedfile,
+            file="/ihome/hugen2071-2025f/cmg276/2073_hw6/HW6.bed",
+            row.names=FALSE,
+            col.names=FALSE,
+            quote=FALSE,
+            sep="\t")
+```
